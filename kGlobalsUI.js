@@ -1,6 +1,6 @@
 //Define the tab Bar
 var tabBar2 = {
-	tB201: {title: "Summary", function: "selectTabBarItem(\"tabBar2\", \"tB201\", \"main2\", \"dispSummary\")"},
+	tB201: {title: "Overview", function: "selectTabBarItem(\"tabBar2\", \"tB201\", \"main2\", \"dispSummary\")"},
 	tB207: {title: "Decades", function: "selectTabBarItem(\"tabBar2\", \"tB207\", \"main2\", \"dispDecade\")"},
 	tB204: {title: "Yearly", function: "selectTabBarItem(\"tabBar2\", \"tB204\", \"main2\", \"dispYearly\")"},
 	tB205: {title: "Monthly", function: "selectTabBarItem(\"tabBar2\", \"tB205\", \"main2\", \"dispMonthly\")"},
@@ -13,7 +13,7 @@ var tabBar2 = {
 
 //Define the window structure
 var uiWindowObj2 = {
-	header1: {title: "Climate Variation & Phenology Analysis",  class: "w3-teal"},
+	header1: {title: "Local Climate Variation & Phenology Analysis",  class: "w3-teal"},
 	main1: {
 		tabBar2: tabBar2,
 		//tabBar3: tabBar3,

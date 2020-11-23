@@ -72,11 +72,11 @@ for (var decade = startYear; decade < endYear; decade+=10) {
 	decadeArr.push(String(decade));
 };
 
-
 var stationList = {
 	apiFetch:	['Indy'],
 	menu:  		Object.keys(stationObj),
 	//menu:	['Indy', 'MCA', 'MSP', 'UofM', 'Rose', ],
+	//menu: ['Mora'],
 	reference: 	'Indy',
 	comp: 		[],
 };
@@ -209,19 +209,12 @@ var dataObjExt = {
 			TMAXAveMax: [0,5], 
 			TAVEAveMax: [0,5], //Max yearly average within decade
 		},
+		summary: {
+			TAVERiseDecades: 0,
+			markerColor: 'red',
+		},
 	},
 };
-
-//Data Summary Array
-var dataObjSumArr = [
-	{	station: "station01",
-		pop: 0,
-		TMINRiseDecades: 0,
-		TMAXRiseDecades: 0,
-		TAVERiseDecades: 0,
-		marker: 'red',
-	},
-];
 
 //Spring arrives cumulative degree days threshold
 var springDegreeDays = 1000;

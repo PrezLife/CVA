@@ -1808,76 +1808,20 @@ function decadeNormChart(eleId) {
 	google.charts.setOnLoadCallback(function(){drawChart(chartArray, chartOptions, chartType, eleId)});
 };
 
-
-function decadeNormChart2(eleId) {
-	//Build the station, year, and parameter lists
-	var stationArr = ['Indy','MSP', 'Milw','Mad', 'Col']
-	var decadeArr = decadeList.menu;
-	var paramArr = paramListAve.comp.slice();
-	paramArr.unshift(paramListAve.reference);
-	var monthArr = monthList.comp;
-	
-	//Build the chart array
-	var chartArray = [];
-	chartArray[0] = ["Decade"];
-	for (var j = 0; j < stationArr.length; j++) {
-		var station = stationArr[j];
-		for (var l = 0; l < paramArr.length; l++) {
-			var param = paramArr[l];
-			chartArray[0].push(stationObj[station].desc);
-		};
-	};
-			
-	for (var i = 0; i < decadeArr.length; i++) {
-		var decade = Number(decadeArr[i]);
-		chartArray[i+1] = [decade + 5];
-		for (var j = 0; j < stationArr.length; j++) {
-			var station = stationArr[j];
-			for (var k = 0; k < paramArr.length; k++) {
-				var param = paramArr[k];
-				var value = null;
-				if (dataObjExt[station].decade[param][i] != null) {
-					value = dataObjExt[station].decade[param][i] - dataObjExt[station].decade[param][2];
-				};
-				chartArray[i+1].push(value);
-			};
-		};
-	};
-	
-	var chartOptions = {
-		height: 300,
-		chartArea: {
-			top: 20,
-			height: "80%",
-			right: "20%",
-		},
-		legend: {
-			position: 'right',
-		},
-		vAxis: {
-			title: 'Deg F',
-			viewWindow: {
-			},
-		},
-		hAxis : {
-			format: '####',
-			viewWindow: {
-				min: Number(decadeArr[0]),
-				max: Number(decadeArr[decadeArr.length-1])+10,
-			},
-		},
-		pointsVisible: false,
-		lineWidth: 2,
-		series : {
-			0 : {color:"Black"},
-			//1 : {color:"Green"},
-		},
-	};
-	//Create the chart
-	var chartType = "scatter";
-	google.charts.setOnLoadCallback(function(){drawChart(chartArray, chartOptions, chartType, eleId)});
-};
 function summaryRiseChart(eleId) {
+	//Build the data object summary array, including only high data quality stations
+	var dataObjSumArr = [];
+	for (station in stationObj) {
+		if (stationObj[station].dataQuality >=1) {
+			var sumStationObj = {};
+			sumStationObj.station = station;
+			sumStationObj.pop = stationObj[station].pop;
+			for (var param in dataObjExt[station].summary) {
+				sumStationObj[param] = dataObjExt[station].summary[param];
+			};
+			dataObjSumArr.push(sumStationObj);
+		};
+	};
 	//Sort the dataObjSumArr array
 	dataObjSumArr.sort((a, b) => (a.TAVERiseDecades < b.TAVERiseDecades) ? 1 : -1);
 
@@ -1893,7 +1837,7 @@ function summaryRiseChart(eleId) {
 		chartArray[i+1] = [
 			stationObj[dataObjSumArr[i].station].desc,
 			dataObjSumArr[i].TAVERiseDecades,
-			"color:" + dataObjSumArr[i].marker,
+			"color:" + dataObjSumArr[i].markerColor,
 		];
 	};
 	
@@ -1939,13 +1883,12 @@ function summaryMapChart(eleId) {
 	//Build the chart array
 	var chartArray = [];
 	chartArray[0] = ['Lat', 'Long', 'Location', 'Marker'];
-	for (var i = 0; i < dataObjSumArr.length; i++) {
-		var station = dataObjSumArr[i].station;
+	for (var station in stationObj) {
 		chartArray.push([
 			stationObj[station].lat,
 			stationObj[station].long,
 			stationObj[station].desc,
-			dataObjSumArr[i].marker,
+			dataObjExt[station].summary.markerColor,
 		]);
 	};
 	
@@ -1981,9 +1924,6 @@ function summaryMapChart(eleId) {
 };
 
 function summaryXYChart(eleId) {
-	//Sort the dataObjSumArr array
-	dataObjSumArr.sort((a, b) => (a.TAVERiseDecades < b.TAVERiseDecades) ? 1 : -1);
-
 	//Build the chart array
 	var chartArray = [];
 	chartArray[0] = [
@@ -1991,18 +1931,19 @@ function summaryXYChart(eleId) {
 		"Population",
 		{role: 'style'},
 	];
-		
-	for (var i = 0; i < dataObjSumArr.length; i++) {
-		var station = dataObjSumArr[i].station;
-		chartArray[i+1] = [
-			dataObjSumArr[i].TAVERiseDecades,
-			stationObj[station].pop * 1000,
-			"color:" + dataObjSumArr[i].marker,
-		];
+
+	for (var station in stationObj) {
+		if (stationObj[station].dataQuality >= 1) {
+			chartArray.push([
+				dataObjExt[station].summary.TAVERiseDecades,
+				stationObj[station].pop * 1000,
+				"color:" + dataObjExt[station].summary.markerColor,
+			]);
+		};
 	};
 	
 	var chartOptions = {
-		height: 500,
+		height: 300,
 		chartArea: {
 			top: 20,
 			height: "80%",
@@ -2014,7 +1955,7 @@ function summaryXYChart(eleId) {
 		vAxis: {
 			title: 'County Population',
 			viewWindow: {
-				//min: decadeArr[0],
+				//min: ,
 				//max: 80,
 			},
 		},
@@ -2038,6 +1979,84 @@ function summaryXYChart(eleId) {
 	var chartType = "scatter";
 	google.charts.setOnLoadCallback(function(){drawChart(chartArray, chartOptions, chartType, eleId)});
 };
+
+function summaryDecadesChart(eleId, stationArr) {
+	//Build the station, year, and parameter lists
+	var decadeArr = decadeList.menu;
+	var param = 'TAVEAve';
+		
+	//Build the chart array
+	var chartArray = [];
+	chartArray[0] = ["Decade"];
+	for (var j = 0; j < stationArr.length; j++) {
+		var station = stationArr[j];
+		chartArray[0].push(stationObj[station].desc);
+		chartArray[0].push({role: 'annotation'});
+		chartArray[0].push({role: 'style'});
+	};
+			
+	for (var i = 0; i < decadeArr.length; i++) {
+		var decade = Number(decadeArr[i]);
+		chartArray[i+1] = [decade + 5];
+		for (var j = 0; j < stationArr.length; j++) {
+			var station = stationArr[j];
+			var value = null;
+			if (dataObjExt[station].decade[param][i] != null) {
+				value = dataObjExt[station].decade[param][i] - dataObjExt[station].decade[param][2];
+			};
+			var annote = null;
+			if (i == (decadeArr.length-1)) {
+				annote = stationObj[station].desc;
+			};
+			chartArray[i+1].push(value);
+			chartArray[i+1].push(annote);
+			chartArray[i+1].push("color:" + dataObjExt[station]. summary.markerColor);
+		};
+	};
+	
+	var chartOptions = {
+		height: 300,
+		chartArea: {
+			top: 20,
+			height: "80%",
+			width: "80%",
+		},
+		legend: {
+			position: 'none',
+		},
+		vAxis: {
+			title: 'Deg F',
+			viewWindow: {
+				min: -3,
+				max: 4,
+			},
+		},
+		hAxis : {
+			format: '####',
+			viewWindow: {
+				min: Number(decadeArr[0]),
+				max: Number(decadeArr[decadeArr.length-1])+10,
+			},
+		},
+		pointsVisible: false,
+		lineWidth: 2,
+		annotations: {
+			stem: {length: 5},
+			textStyle: {
+				//fontSize: 30,
+				//color: '#000000', //Doesn't work
+			},
+		},
+		series : {
+			//0 : {color:"Black"},
+			//1 : {color:"Green"},
+		},
+	};
+	//Create the chart
+	var chartType = "scatter";
+	google.charts.setOnLoadCallback(function(){drawChart(chartArray, chartOptions, chartType, eleId)});
+};
+
 
 
 

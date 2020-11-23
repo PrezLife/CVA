@@ -26,35 +26,34 @@ var processTimer = setInterval(function() {
 		clearInterval(processTimer);
 		buildDataObj();
 		buildDataObjExt();
-		buildDataObjSumArr();
 		currentState.dataFilesProcessed = true;
 	};
 }, 100);
 	
-
 //Open the first menu window
 document.getElementById("tB201").click();
 /*var stateTimer = setInterval(function() {
+	console.log("Got Here")
 	if (currentState.dataFilesProcessed) {
 		clearInterval(stateTimer);
-		document.getElementById("tB201").click();
 	};
 }, 100);*/
-	
+
+
 function dispSummary(eleId) {
 	var thisWindowFunc = arguments.callee.name;
 	currentState.tabWindowFunc = thisWindowFunc;
 	var txt = "";
 	
 	//Build the window header
-	var title = "Summary";
+	var title = "Data Overview";
 	txt += "<div class='w3-row w3-card'>";
 		txt += "<h3 class='w3-center'>" + title + "</h3>";
 	txt += "</div>";
 
 	//Build text and containers for charts
 	txt += "<div class='w3-container'>";
-		txt += "<br><p>This is the first summary text.</p><br>";
+		txt += "<br><p>The charts below present an overview of the NOAA weather station data that currently is pulled into this app.  The data is from a mix of urban and rural stations across four states - Indiana, Wisconsin, Minnesota, and upper Michigan.  The color of the bars, lines, and markers on each chart indicates the population density in the vicinity of the station: <span style='color:red'>Red = high/urban</span>, <span style='color:gold'>yellow = medium</span>, <span style='color:green'>green = low/rural</span>.  The population of the county where the station is located is used as a rough proxy for population density.</p><br>";
 	txt += "</div>";
 	
 	txt += "<div class='w3-row'>";
@@ -62,7 +61,7 @@ function dispSummary(eleId) {
 		txt += "<div class='w3-col m6'>";
 			var chartEleIdA = 'divChartA';
 			txt += "<div class='w3-container'>";
-				txt += buildChartDivHTML(chartEleIdA, "Five Decade Temperature Rise");
+				txt += buildChartDivHTML(chartEleIdA, "Average Temperature Rise Since the 1960's");
 			txt += "</div>";
 		txt += "</div>";
 		txt += "<div class='w3-col m6'>";
@@ -74,14 +73,39 @@ function dispSummary(eleId) {
 	txt += "</div>";
 	txt += "<div class='w3-row'>";	
 		txt += "<br>"
-		txt += "<div class='w3-col m12'>";
+		txt += "<div class='w3-col m2'><p></p></div>";
+		txt += "<div class='w3-col m8'>";
 			var chartEleIdD = 'divChartD';
 			txt += "<div class='w3-container'>";
-				txt += buildChartDivHTML(chartEleIdD, "Temperature Rise vs Population");
+				txt += buildChartDivHTML(chartEleIdD, "County Population vs Temperature Rise Since the 1960's");
 			txt += "</div>";
-				var chartEleIdE = 'divChartE';
+		txt += "</div>";
+	txt += "</div>";
+
+	txt += "<div class='w3-container'>";
+		txt += "<br><p>The three charts below show the average temperature by decade in comparison to the 1960's. The charts are segmented into the three population density groups.</p>";
+	txt += "</div>";
+	
+	txt += "<div class='w3-row'>";	
+		txt += "<br>"
+		txt += "<div class='w3-col m6'>";
+			var chartEleIdE = 'divChartE';
 			txt += "<div class='w3-container'>";
-				txt += buildChartDivHTML(chartEleIdE, "Decade Temperatures - Normalized to 1960's Average");
+				txt += buildChartDivHTML(chartEleIdE, "Average Temperatures Compared to the 1960's");
+			txt += "</div>";
+		txt += "</div>";
+		//txt += "<br>"
+		txt += "<div class='w3-col m6'>";
+			var chartEleIdF = 'divChartF';
+			txt += "<div class='w3-container'>";
+				txt += buildChartDivHTML(chartEleIdF, "Average Temperatures Compared to the 1960's");
+			txt += "</div>";
+		txt += "</div>";
+		//txt += "<br>"
+		txt += "<div class='w3-col m6'>";
+			var chartEleIdG = 'divChartG';
+			txt += "<div class='w3-container'>";
+				txt += buildChartDivHTML(chartEleIdG, "Average Temperatures Compared to the 1960's");
 			txt += "</div>";
 		txt += "</div>";
 	txt += "</div>";
@@ -96,7 +120,27 @@ function dispSummary(eleId) {
 				summaryRiseChart(chartEleIdA);
 				summaryMapChart(chartEleIdC);
 				summaryXYChart(chartEleIdD);
-				decadeNormChart2(chartEleIdE);
+				var stationArr = [];
+				for (var station in stationObj) {
+					if (stationObj[station].dataQuality >= 1 && dataObjExt[station].summary.markerColor == 'red') {
+						stationArr.push(station);
+					};
+				};
+				summaryDecadesChart(chartEleIdE, stationArr);
+				var stationArr = [];
+				for (var station in stationObj) {
+					if (stationObj[station].dataQuality >= 1 && dataObjExt[station].summary.markerColor == 'gold') {
+						stationArr.push(station);
+					};
+				};
+				summaryDecadesChart(chartEleIdF, stationArr);
+				var stationArr = [];
+				for (var station in stationObj) {
+					if (stationObj[station].dataQuality >= 1 && dataObjExt[station].summary.markerColor == 'green') {
+						stationArr.push(station);
+					};
+				};
+				summaryDecadesChart(chartEleIdG, stationArr);
 			};
 		};
 	}, 100);
@@ -818,7 +862,6 @@ function fetchData(stationKey, year, param) {
 
 //Function to calculate secondary parameters from the original API Data
 function buildDataObj() {
-		
 	//Build the secondary daily parameters
 	for (var i = 0; i < stationList.menu.length; i++) {
 		var station = stationList.menu[i];
@@ -895,12 +938,12 @@ function buildDataObjExt() {
 	//console.log("buildYearParams", new Date() - startTime);
 	buildDecadeParams(params);
 	//console.log("buildDecadeParams", new Date() - startTime);
+	buildSummaryParams();
 };
 
 function buildDayParams(params) {
 	//Build the daily average parameters
-	var numDays = dateArr.length;	
-	//for (var station in dataObj) {
+	var numDays = dateArr.length;
 	for (var iStation = 0; iStation < stationList.menu.length; iStation++) {
 		var station = stationList.menu[iStation];
 		for (var i = 0; i < params.length; i++) {
@@ -921,7 +964,6 @@ function buildDayParams(params) {
 	};
 
 	//Build the daily delta (to long-term average) and delta sum parameters for each day of each year. These vectors are inserted back into dataObj
-	//for (var station in dataObj) {
 	for (var iStation = 0; iStation < stationList.menu.length; iStation++) {
 		var station = stationList.menu[iStation];
 		for (var year in dataObj[station]) {
@@ -1015,12 +1057,25 @@ function buildYearParams(params) {
 			var param = params[i];
 			dataObjExt[station].year[param + "Ave"] = Array(numYears).fill(null);
 			for (var j = 0; j < numYears; j++) {
-				var vect = [];
-				for (month in dataObjExt[station].month) {
-					var monthAve = dataObjExt[station].month[month][param + "Ave"][j];
-					vect.push(monthAve);
+				var year = yearArr[j];
+				//Build an index range of the null values
+				var IR = [];
+				var dataVect = dataObj[station][year][param].slice();
+				for (var k = 0; k < dataVect.length; k++) {
+					if (dataVect[k] == null) {
+						IR.push(k);
+					};
 				};
-				var yearAve =calcAve(vect, QFYearAve);
+				//If 15 or fewer null values, then replace the nulls with 80 year averages and calculate the average for the year.  Otherwise, set the average for the year to null
+				var yearAve = null;
+				if (dataVect.length>0 && IR.length <= 15) {
+					for (var k = 0; k < IR.length; k++) {
+						var index = IR[k];
+						dataVect[index] = dataObjExt[station].day[param+"Ave"][index];
+					};
+					yearAve = calcAve(dataVect, 1);
+				};
+				//console.log(station, year, param, IR.length, yearAve)
 				dataObjExt[station].year[param + "Ave"][j] = yearAve;
 			};
 		};
@@ -1118,9 +1173,8 @@ function buildDecadeParams(params) {
 			for (var j = 0; j < numDecades; j++) {
 				var decade = Number(decadeList.menu[j]);
 				var vect = [];
-				var IR = [];
-				for (var k = 0; k < yearList.menu.length; k++) {
-					var year = Number(yearList.menu[k]);
+				for (var k = 0; k < yearNumArr.length; k++) {
+					var year = yearNumArr[k];
 					if (year >= decade && year < (decade + 10)) {
 						vect.push(dataObjExt[station].year[param + "Ave"][k]);
 					};
@@ -1134,13 +1188,10 @@ function buildDecadeParams(params) {
 	};
 };
 
-function buildDataObjSumArr() {
-	dataObjSumArr = [];
-	var params = ['TMIN', 'TAVE', 'TMAX'];
+function buildSummaryParams() {
+	var params = ['TAVE'];
 	for (station in dataObjExt) {
-		var sumStationObj = {};
-		sumStationObj.station = station;
-		sumStationObj.pop = stationObj[station].pop;
+		dataObjExt[station].summary = {};
 		for (var i = 0; i < params.length; i++) {
 			var param = params[i];
 			var decadeArr = dataObjExt[station].decade[param + "Ave"];
@@ -1150,24 +1201,17 @@ function buildDataObjSumArr() {
 			if (endValue != null && startValue != null) {
 				tRiseDecades = (endValue - startValue);
 			}
-			sumStationObj[param + "RiseDecades"] = tRiseDecades;
+			dataObjExt[station].summary[param + "RiseDecades"] = tRiseDecades;
 		};
-		/*switch (true) {
-			case sumStationObj['TAVERiseDecades'] == null: sumStationObj['marker'] = 'default'; break;
-			case sumStationObj['TAVERiseDecades'] > 2.5: sumStationObj['marker'] = 'red'; break;
-			case sumStationObj['TAVERiseDecades'] > 1.5: sumStationObj['marker'] = 'gold'; break;
-			case sumStationObj['TAVERiseDecades'] > 0: sumStationObj['marker'] = 'green'; break;
-			default: sumStationObj['marker'] = 'darkblue'; break;
-		};*/
+		var markerColor;
 		switch (true) {
-			case sumStationObj['pop'] > 500: sumStationObj['marker'] = 'red'; break;
-			case sumStationObj['pop'] > 100: sumStationObj['marker'] = 'gold'; break;
-			case sumStationObj['pop'] > 0: sumStationObj['marker'] = 'green'; break;
-			default: sumStationObj['marker'] = 'darkblue'; break;
-		}
-		dataObjSumArr.push(sumStationObj);
+			case stationObj[station]['pop'] > 500: markerColor = 'red'; break;
+			case stationObj[station]['pop'] > 100: markerColor = 'gold'; break;
+			case stationObj[station]['pop'] > 0: markerColor = 'green'; break;
+			default: markerColor = 'darkblue'; break;
+		};
+		dataObjExt[station].summary.markerColor = markerColor
 	};
-	//console.log(dataObjSumArr)
 };
 
 function selectFetchSampleDataBtn() {
