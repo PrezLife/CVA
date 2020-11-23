@@ -1,13 +1,13 @@
 //Define the tab Bar
 var tabBar2 = {
 	tB201: {title: "Overview", function: "selectTabBarItem(\"tabBar2\", \"tB201\", \"main2\", \"dispSummary\")"},
-	tB207: {title: "Decades", function: "selectTabBarItem(\"tabBar2\", \"tB207\", \"main2\", \"dispDecade\")"},
-	tB204: {title: "Yearly", function: "selectTabBarItem(\"tabBar2\", \"tB204\", \"main2\", \"dispYearly\")"},
-	tB205: {title: "Monthly", function: "selectTabBarItem(\"tabBar2\", \"tB205\", \"main2\", \"dispMonthly\")"},
-	tB208: {title: "Daily", function: "selectTabBarItem(\"tabBar2\", \"tB208\", \"main2\", \"dispDaily\")"},
-	tB210: {title: "Day", function: "selectTabBarItem(\"tabBar2\", \"tB210\", \"main2\", \"dispCurrent\")"},
-	tB209: {title: "Phenology", function: "selectTabBarItem(\"tabBar2\", \"tB209\", \"main2\", \"dispPhenology\")"},
-	tB202: {title: "Fetch Data", function: "selectTabBarItem(\"tabBar2\", \"tB202\", \"main2\", \"dispFetchData\")"},
+	//tB207: {title: "Decades", function: "selectTabBarItem(\"tabBar2\", \"tB207\", \"main2\", \"dispDecade\")"},
+	//tB204: {title: "Yearly", function: "selectTabBarItem(\"tabBar2\", \"tB204\", \"main2\", \"dispYearly\")"},
+	//tB205: {title: "Monthly", function: "selectTabBarItem(\"tabBar2\", \"tB205\", \"main2\", \"dispMonthly\")"},
+	//tB208: {title: "Daily", function: "selectTabBarItem(\"tabBar2\", \"tB208\", \"main2\", \"dispDaily\")"},
+	//tB210: {title: "Day", function: "selectTabBarItem(\"tabBar2\", \"tB210\", \"main2\", \"dispCurrent\")"},
+	//tB209: {title: "Phenology", function: "selectTabBarItem(\"tabBar2\", \"tB209\", \"main2\", \"dispPhenology\")"},
+	//tB202: {title: "Fetch Data", function: "selectTabBarItem(\"tabBar2\", \"tB202\", \"main2\", \"dispFetchData\")"},
 	//tB203: {title: "Get API Data", function: "selectTabBarItem(\"tabBar2\", \"tB203\", \"main2\", \"dispGetAPIData\")"},
 };
 
